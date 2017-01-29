@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using mshtml;
+using System.IO;
+using Awesomium.Core;
 
 namespace StreamLoaderWPF
 {
@@ -24,7 +15,35 @@ namespace StreamLoaderWPF
         {
             InitializeComponent();
 
-            DataContext = new ViewModel();
+            var viewModel = new ViewModel();
+            DataContext = viewModel;
+
+            if (viewModel.BrowserBackAction == null) viewModel.BrowserBackAction = new Action(() => GoBack());
+            if (viewModel.BrowserForwardAction == null) viewModel.BrowserForwardAction = new Action(() => GoFoward());
+            if (viewModel.StreamAction == null) viewModel.StreamAction = new Action(() => GetHtml(viewModel));
+            if (viewModel.CurrentUrlAction == null) viewModel.CurrentUrlAction = new Action(() => GetCurrentUrl(viewModel));
+            if (viewModel.TitleAction == null) viewModel.TitleAction = new Action(() => viewModel.GetTitle());
+        }
+
+        private void GetCurrentUrl(ViewModel viewModel)
+        {
+            viewModel.CurrentUrl = browserXaml.Source.ToString();
+        }
+
+        private void GetHtml(ViewModel viewModel)
+        {
+            var doc = browserXaml.Document as HTMLDocument;
+            if (doc != null) viewModel.HtmlSource = doc.documentElement.innerHTML;
+        }
+
+        private void GoBack()
+        {
+            if (browserXaml.CanGoBack) browserXaml.GoBack();
+        }
+
+        private void GoFoward()
+        {
+            if (browserXaml.CanGoForward) browserXaml.GoForward();
         }
     }
 }

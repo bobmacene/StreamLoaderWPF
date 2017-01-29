@@ -35,7 +35,7 @@ namespace StreamDownloader
             return driver.PageSource;
         }
 
-        public string GetStreamUrl(string html, string pattern)
+        public string GetPattern(string html, string pattern)
         {
             var regex = new Regex(pattern);
 

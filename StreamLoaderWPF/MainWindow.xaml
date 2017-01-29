@@ -4,15 +4,54 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StreamLoaderWPF"
+        WindowState="Maximized"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="700">
-    <Grid Background="Black" Margin="0,0,2,0" FocusManager.FocusedElement="{Binding ElementName=urlBox}">
-        <TextBox x:Name="urlBox" Text="{Binding StreamUrl}" TabIndex="1" Height="21" Margin="42,69,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="566"/>
-        <Label Content="Enter stream url here:" Foreground="YellowGreen" HorizontalAlignment="Left" Margin="42,42,0,0" VerticalAlignment="Top" Height="27" Width="142"/>
-        <TextBox Text="{Binding StreamName}" TabIndex="2" Height="21" Margin="42,128,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="566" />
-        <Label  Content="Enter stream name here:" Foreground="YellowGreen" HorizontalAlignment="Left" Margin="42,101,0,0" VerticalAlignment="Top" Height="27" Width="160"/>
-        <Button Command="{Binding LoadStream}" Background="Green" Foreground="Yellow" FontWeight="Bold" Content="Download Stream" Margin="452,169,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="156" Height="25"/>
-        <TextBox Text="{Binding DownloadText}" BorderThickness="0" HorizontalAlignment="Left" Margin="42,207,0,0" Background="Black" Foreground="Yellow" VerticalAlignment="Top" Height="27" Width="315"/>
-        <Label  Content="StreamDownloader" HorizontalContentAlignment="Right" FontWeight="UltraBold"  Foreground="Red" FontSize="16" FontFamily="Arial Unicode MS"  HorizontalAlignment="Right"  Margin="0,10,82,0" VerticalAlignment="Top" Width="156"/>
-    </Grid>
+        Title="MainWindow" Height="364" Width="1155">
+    <TabControl Name="tabControl" TabIndex="{Binding TabItemIndex}" >
+        <TabItem Header="Download" Background="Black" Foreground="Red">
+            <Grid Background="Black" Margin="0,0,2,0" FocusManager.FocusedElement="{Binding ElementName=urlBox}">
+                <TextBox x:Name="urlBox" Text="{Binding StreamUrl}" TabIndex="1" Height="21" Margin="42,69,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="566"/>
+                <Label Content="Enter stream url here:" Foreground="YellowGreen" HorizontalAlignment="Left" Margin="42,42,0,0" VerticalAlignment="Top" Height="27" Width="142"/>
+                <TextBox Text="{Binding StreamName}" TabIndex="2" Height="21" Margin="42,128,0,0" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Left" Width="566" />
+                <Label  Content="Enter stream name here:" Foreground="YellowGreen" HorizontalAlignment="Left" Margin="42,101,0,0" VerticalAlignment="Top" Height="27" Width="160"/>
+                <Button Command="{Binding LoadStream}" Background="Green" Foreground="Yellow" FontWeight="Bold" Content="Download Stream" Margin="452,169,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Width="156" Height="25"/>
+                <TextBox Text="{Binding DownloadText}" BorderThickness="0" HorizontalAlignment="Left" Margin="42,207,0,0" Background="Black" Foreground="Yellow" VerticalAlignment="Top" Height="27" Width="315"/>
+                <Label  Content="StreamDownloader" HorizontalContentAlignment="Right" FontWeight="UltraBold"  Foreground="Red" FontSize="16" FontFamily="Arial Unicode MS"  HorizontalAlignment="Right"  Margin="0,10,82,0" VerticalAlignment="Top" Width="156"/>
+            </Grid>
+        </TabItem>
+        <TabItem x:Name="downloadTab" Header="MixCloud.com" Background="Black" Foreground="Red" >
+            <Grid Background="Azure" Margin="0,0,-2,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions >
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button  Command="{Binding BrowserBackCommand}"  Content="Back" Grid.Column="0" Background="Green" Foreground="YellowGreen"/>
+                <Button Command="{Binding BrowserForwardCommand}" Content="Forward" Grid.Column="1"  Background="GreenYellow" Foreground="Green"/>
+                <Button Command="{Binding StreamCommand}" Content="Download Stream" Grid.Column="2" Background="ForestGreen" Foreground="YellowGreen" />
+                <Button Command="{Binding GetStreamUrlCommand}" Content="Check Stream Url Is Available" Grid.Column="3" Background="Yellow"/>
+                <TextBox Text="{Binding StreamUrl}" Grid.Column="4" Background="Azure"/>
+                <Button Command="{Binding CurrentUrlCommand}" Content="Get Current Url" Grid.Row="1" Grid.Column="0" Background="Yellow"/>
+                <TextBox Text="{Binding CurrentUrl}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Background="Azure"/>
+
+                <Label Content="URL:" Grid.Row="2" Grid.Column="0" Background="DarkSeaGreen" Foreground="Green"/>
+                <TextBox Text="{Binding StreamUrl}" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Background="Azure"/>
+
+                <Button Command="{Binding TitleCommand}" Content="Get Title" Grid.Row="1" Grid.Column="3" Background="Yellow"/>
+                <TextBox Text="{Binding Title}" Grid.Row="1" Grid.Column="4" Grid.ColumnSpan="2" Background="LightBlue"/>
+
+                <WebBrowser x:Name="browserXaml" Grid.Row="3" Source="https://www.mixcloud.com" VerticalAlignment="Stretch" Grid.ColumnSpan="5" />
+                
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>
+ 
