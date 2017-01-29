@@ -20,7 +20,7 @@ namespace StreamLoaderWPF
 
             if (viewModel.BrowserBackAction == null) viewModel.BrowserBackAction = new Action(() => GoBack());
             if (viewModel.BrowserForwardAction == null) viewModel.BrowserForwardAction = new Action(() => GoFoward());
-            if (viewModel.StreamAction == null) viewModel.StreamAction = new Action(() => GetHtml(viewModel));
+            if (viewModel.CurrentHtmlAction == null) viewModel.CurrentHtmlAction = new Action(() => GetHtml(viewModel));
             if (viewModel.CurrentUrlAction == null) viewModel.CurrentUrlAction = new Action(() => GetCurrentUrl(viewModel));
             if (viewModel.TitleAction == null) viewModel.TitleAction = new Action(() => viewModel.GetTitle());
         }
@@ -44,6 +44,13 @@ namespace StreamLoaderWPF
         private void GoFoward()
         {
             if (browserXaml.CanGoForward) browserXaml.GoForward();
+        }
+
+        private void bar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            bar.Visibility = Visibility.Visible;
+
+            bar.Value = e.NewValue;
         }
     }
 }

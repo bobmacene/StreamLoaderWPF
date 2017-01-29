@@ -3,6 +3,7 @@ using StreamDownloader;
 using System;
 using System.IO;
 using System.Windows.Input;
+using System.Windows;
 
 namespace StreamLoaderWPF
 {
@@ -12,7 +13,21 @@ namespace StreamLoaderWPF
         private bool _canExecute;
         public ViewModel()
         {
+            ProgressBarVisibility = Visibility.Collapsed;
             _canExecute = true;
+        }
+
+        public string HtmlSource { get; set; }
+
+        private string _streamUrl;
+        public string StreamUrl
+        {
+            get { return _streamUrl; }
+            set
+            {
+                _streamUrl = value;
+                NotifyPropertyChanged("StreamUrl");
+            }
         }
 
         private string _title;
@@ -24,15 +39,6 @@ namespace StreamLoaderWPF
                 _title = value;
                 NotifyPropertyChanged("Title");
             }
-        }
-
-        private string GetStreamName(string url)
-        {
-            if (_streamUrl.EndsWith("/")) _streamUrl = _streamUrl.Substring(0, _streamUrl.Length - 1);
-
-            var index = url.LastIndexOf('/') + 1;
-
-            return _streamUrl.Substring(index, _streamUrl.Length - index) + m4a;
         }
 
         private string _currentUrl;
@@ -49,35 +55,18 @@ namespace StreamLoaderWPF
             }
         }
 
-        private string _downloadingText;
-        public string DownloadText
-        {
-            get { return _downloadingText; }
-            set
-            {
-                _downloadingText = value;
-                NotifyPropertyChanged("DownloadText");
-            }
-        }
 
         public Action BrowserBackAction { get; set; }
         public Action BrowserForwardAction { get; set; }
-        public Action StreamAction { get; set; }
+        public Action CurrentHtmlAction { get; set; }
         public Action CurrentUrlAction { get; set; }
         public Action TitleAction { get; set; }
+
 
         private ICommand _currentUrlCommand;
         public ICommand CurrentUrlCommand
         {
             get { return _currentUrlCommand = (_currentUrlCommand = new CommandHandler(() => CurrentUrlAction(), _canExecute)); }
-        }
-
-        public string HtmlSource { get; set; }
-
-        private ICommand _streamCommand;
-        public ICommand StreamCommand
-        {
-            get { return _streamCommand ?? (_streamCommand = new CommandHandler(() => StreamAction(), _canExecute));  }
         }
 
         private ICommand _browserForward;
@@ -98,25 +87,15 @@ namespace StreamLoaderWPF
             get { return _getStreamUrlCommand = (_getStreamUrlCommand = new CommandHandler(() => GetStreamUrl(), _canExecute)); }
         }
 
-        private string _streamUrl;
-        public string StreamUrl
+        private ICommand _saveStreamCommand;
+        public ICommand SaveStreamCommand
         {
-            get { return _streamUrl; }
-            set
+            get
             {
-                _streamUrl = value;
-                NotifyPropertyChanged("StreamUrl");
+                //ProgressBarVisibility = Visibility.Visible;
+                return _saveStreamCommand ?? (_saveStreamCommand = new CommandHandler(() => SaveStream(), _canExecute));
             }
-        }
 
-        private string GetStreamUrl()
-        {
-            StreamAction();
-            var load = new DownLoader();
-
-            string RegexPattern = "(https://s.*.m4a)";
-
-            return StreamUrl = load.GetPattern(HtmlSource, RegexPattern);
         }
 
         private ICommand _titleCommand;
@@ -125,38 +104,50 @@ namespace StreamLoaderWPF
             get { return _titleCommand = (_titleCommand = new CommandHandler(() => GetTitle(), _canExecute)); }
         }
 
+        private Visibility _progressBarVisibility;
+        public Visibility ProgressBarVisibility
+        {
+            get { return _progressBarVisibility;}
+            set
+            {
+                _progressBarVisibility = value;
+                NotifyPropertyChanged("ProgressBarVisibility");
+            }
+        }
+
+        private string GetStreamUrl()
+        {
+            CurrentHtmlAction();
+            var load = new DownLoader();
+
+            string RegexPattern = "(https://s.*.m4a)";
+
+            return StreamUrl = load.GetPattern(HtmlSource, RegexPattern);
+        }       
+
         public string GetTitle()
         {
-            StreamAction();
-            var load = new DownLoader();
+            CurrentHtmlAction();
 
             string RegexPattern = "</style><title>(.*)</title><meta name=";
 
-            return Title = load.GetPattern(HtmlSource, RegexPattern);
-        }
-
-        public void SaveStream()
-        {
-            var load = new DownLoader();
-
-            StreamAction();
-            string RegexPattern = "(https://s.*.m4a)";
-            var streamUrl = load.GetPattern(HtmlSource, RegexPattern);
-
-            var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-            savePath = Path.Combine(musicFolderPath, "Music", GetStreamName(streamUrl));
-            load.LoadWebStream(streamUrl, savePath);
-        }
-
-        private ICommand _saveStreamCommand;
-        public ICommand SaveStreamCommand
-        {
-            get { return _saveStreamCommand ?? (_saveStreamCommand = new CommandHandler(() => SaveStream(), _canExecute)); }
-
+            return Title = new DownLoader().GetPattern(HtmlSource, RegexPattern);
         }
 
         private string savePath;
+        public void SaveStream()
+        {
+            ProgressBarVisibility = Visibility.Visible;
+            CurrentHtmlAction();
+            
+            var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            TitleAction();
+            savePath = Path.Combine(musicFolderPath, "Music", _title);
+
+            CurrentUrlAction();
+            new DownLoader().LoadWebStream(_streamUrl, savePath);
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyPropertyChanged(string propertyName)
