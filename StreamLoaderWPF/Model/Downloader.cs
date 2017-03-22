@@ -8,6 +8,7 @@ namespace StreamDownloader
 {
     public class DownLoader
     {
+
         public void LoadWebStream(string streamUrl, string loadPath)
         {
             var webReq = WebRequest.Create(streamUrl);

@@ -2,7 +2,8 @@
 using System.Windows;
 using mshtml;
 using System.IO;
-using Awesomium.Core;
+using System.Threading;
+using System.ComponentModel;
 
 namespace StreamLoaderWPF
 {
@@ -11,6 +12,8 @@ namespace StreamLoaderWPF
     /// </summary>
     public partial class MainWindow : Window
     {
+       // private ViewModel modelView;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -18,12 +21,25 @@ namespace StreamLoaderWPF
             var viewModel = new ViewModel();
             DataContext = viewModel;
 
+
+            viewModel.ProgressBarVisibility = Visibility.Collapsed;
+
             if (viewModel.BrowserBackAction == null) viewModel.BrowserBackAction = new Action(() => GoBack());
             if (viewModel.BrowserForwardAction == null) viewModel.BrowserForwardAction = new Action(() => GoFoward());
             if (viewModel.CurrentHtmlAction == null) viewModel.CurrentHtmlAction = new Action(() => GetHtml(viewModel));
             if (viewModel.CurrentUrlAction == null) viewModel.CurrentUrlAction = new Action(() => GetCurrentUrl(viewModel));
             if (viewModel.TitleAction == null) viewModel.TitleAction = new Action(() => viewModel.GetTitle());
+            
         }
+
+       
+
+        //private void browserXaml_LoadCompleted(object sender, EventArgs e)
+        //{
+        //    viewModel = new ViewModel();
+
+        //    viewModel.CurrentUrl = browserXaml.Source.ToString();
+        //}
 
         private void GetCurrentUrl(ViewModel viewModel)
         {
@@ -52,5 +68,6 @@ namespace StreamLoaderWPF
 
             bar.Value = e.NewValue;
         }
+
     }
 }

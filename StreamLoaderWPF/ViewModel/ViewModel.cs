@@ -11,10 +11,19 @@ namespace StreamLoaderWPF
     {
         private const string m4a = ".m4a";
         private bool _canExecute;
+        private BackgroundWorker _worker;
+        private int _progressPercentage;
+        private string Output;
+        private bool _startEnabled = true;
+        private bool _cancelEnabled = false;
+
         public ViewModel()
         {
             ProgressBarVisibility = Visibility.Collapsed;
             _canExecute = true;
+
+            
+
         }
 
         public string HtmlSource { get; set; }
@@ -92,7 +101,6 @@ namespace StreamLoaderWPF
         {
             get
             {
-                //ProgressBarVisibility = Visibility.Visible;
                 return _saveStreamCommand ?? (_saveStreamCommand = new CommandHandler(() => SaveStream(), _canExecute));
             }
 
@@ -137,16 +145,75 @@ namespace StreamLoaderWPF
         private string savePath;
         public void SaveStream()
         {
-            ProgressBarVisibility = Visibility.Visible;
             CurrentHtmlAction();
+            CurrentUrlAction();
+
+            _worker = new BackgroundWorker
+            {
+                WorkerReportsProgress = true,
+                WorkerSupportsCancellation = true
+            };
+
+            _worker.DoWork += Worker_DoWork;
+            //_worker.ProgressChanged += BackgroundWorker_ProgressChanged;
+            _worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+
+            if (_worker.IsBusy)
+            {
+                _worker.CancelAsync();
+            }
+
+
+            Output = string.Empty;
             
+            if(!_worker.IsBusy)
+            {
+                _worker.RunWorkerAsync();
+            }
+
+            _startEnabled = !_worker.IsBusy;
+            _cancelEnabled = _worker.IsBusy;
+        }
+
+        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            ProgressBarVisibility = Visibility.Visible;
+           
+
             var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             TitleAction();
             savePath = Path.Combine(musicFolderPath, "Music", _title);
 
-            CurrentUrlAction();
             new DownLoader().LoadWebStream(_streamUrl, savePath);
+
+            ProgressBarVisibility = Visibility.Hidden;
+        }
+
+
+        public void CancelDownload()
+        {
+            _worker.CancelAsync();
+        }
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error != null) Output = e.Error.Message;
+            else if (e.Cancelled) Output = "Cancelled";
+            else
+            {
+                Output = e.Result.ToString();
+                _progressPercentage = 0;
+            }
+
+            _startEnabled = !_worker.IsBusy;
+            _cancelEnabled = _worker.IsBusy;
+
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -156,42 +223,3 @@ namespace StreamLoaderWPF
         }
     }
 }
-/*      
- *       //public void DownloadStream()
-        //{
-        //    var downLoadr = new DownLoader();
-        //    var pageSource = downLoadr.GetPageSource(_chromeDriverPath, StreamUrl);
-
-        //    string RegexPattern = "(https://s.*.m4a)";
-        //    var streamUrl = downLoadr.GetStreamUrl(pageSource, RegexPattern);
-
-        //    if (streamUrl == null)
-        //    {
-        //        RegexPattern = "(https://a.*.mp3)";
-        //        streamUrl = downLoadr.GetStreamUrl(pageSource, RegexPattern);
-        //    }
-
-        //    DownloadText = "Downloading: " + streamUrl;
-
-        //    var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-
-        //    savePath = Path.Combine(musicFolderPath, "Music", _streamName);
-        //    downLoadr.LoadWebStream(streamUrl, savePath);
-
-        //    DownloadText = "Downloaded: " + streamUrl;
-        //}
- *      
- *      
- *        //private ICommand _loadStream;
-        //private string _chromeDriverPath;
-
-        //public ICommand LoadStream
-        //{
-        //    get
-        //    {
-        //        _chromeDriverPath = Path.GetDirectoryName(
-        //        System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase);
-
-        //        return _loadStream ?? (_loadStream = new CommandHandler(() => DownloadStream(), _canExecute));
-        //    }
-        //}*/
