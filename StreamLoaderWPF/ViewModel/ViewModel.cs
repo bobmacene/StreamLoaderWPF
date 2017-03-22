@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Windows.Input;
 using System.Windows;
+using System.Threading;
 
 namespace StreamLoaderWPF
 {
@@ -21,8 +22,6 @@ namespace StreamLoaderWPF
         {
             ProgressBarVisibility = Visibility.Collapsed;
             _canExecute = true;
-
-            
 
         }
 
@@ -145,6 +144,7 @@ namespace StreamLoaderWPF
         private string savePath;
         public void SaveStream()
         {
+
             CurrentHtmlAction();
             CurrentUrlAction();
 
@@ -183,7 +183,6 @@ namespace StreamLoaderWPF
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             ProgressBarVisibility = Visibility.Visible;
-           
 
             var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
