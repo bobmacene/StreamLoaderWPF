@@ -5,6 +5,9 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows;
 using System.Threading;
+using System.Windows.Threading;
+using System.Threading.Tasks;
+using System.Deployment;
 
 namespace StreamLoaderWPF
 {
@@ -12,17 +15,12 @@ namespace StreamLoaderWPF
     {
         private const string m4a = ".m4a";
         private bool _canExecute;
-        private BackgroundWorker _worker;
-        private int _progressPercentage;
-        private string Output;
-        private bool _startEnabled = true;
-        private bool _cancelEnabled = false;
+        public Task _task;
 
         public ViewModel()
         {
             ProgressBarVisibility = Visibility.Collapsed;
             _canExecute = true;
-
         }
 
         public string HtmlSource { get; set; }
@@ -102,7 +100,6 @@ namespace StreamLoaderWPF
             {
                 return _saveStreamCommand ?? (_saveStreamCommand = new CommandHandler(() => SaveStream(), _canExecute));
             }
-
         }
 
         private ICommand _titleCommand;
@@ -114,7 +111,7 @@ namespace StreamLoaderWPF
         private Visibility _progressBarVisibility;
         public Visibility ProgressBarVisibility
         {
-            get { return _progressBarVisibility;}
+            get { return _progressBarVisibility; }
             set
             {
                 _progressBarVisibility = value;
@@ -130,7 +127,7 @@ namespace StreamLoaderWPF
             string RegexPattern = "(https://s.*.m4a)";
 
             return StreamUrl = load.GetPattern(HtmlSource, RegexPattern);
-        }       
+        }
 
         public string GetTitle()
         {
@@ -142,46 +139,18 @@ namespace StreamLoaderWPF
         }
 
         private string savePath;
-        public void SaveStream()
-        {
 
+        public async Task PersistStreamLongProcess()
+        {
+            var process = await Application.Current.Dispatcher.Invoke(SaveStream);
+        }
+
+        public async Task<bool> SaveStream()
+         {
+            await Task.Delay(10);
             CurrentHtmlAction();
             CurrentUrlAction();
 
-            _worker = new BackgroundWorker
-            {
-                WorkerReportsProgress = true,
-                WorkerSupportsCancellation = true
-            };
-
-            _worker.DoWork += Worker_DoWork;
-            //_worker.ProgressChanged += BackgroundWorker_ProgressChanged;
-            _worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-
-            if (_worker.IsBusy)
-            {
-                _worker.CancelAsync();
-            }
-
-
-            Output = string.Empty;
-            
-            if(!_worker.IsBusy)
-            {
-                _worker.RunWorkerAsync();
-            }
-
-            _startEnabled = !_worker.IsBusy;
-            _cancelEnabled = _worker.IsBusy;
-        }
-
-        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-
-        }
-
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
-        {
             ProgressBarVisibility = Visibility.Visible;
 
             var musicFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -192,28 +161,10 @@ namespace StreamLoaderWPF
             new DownLoader().LoadWebStream(_streamUrl, savePath);
 
             ProgressBarVisibility = Visibility.Hidden;
+
+            return true;
         }
 
-
-        public void CancelDownload()
-        {
-            _worker.CancelAsync();
-        }
-
-        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (e.Error != null) Output = e.Error.Message;
-            else if (e.Cancelled) Output = "Cancelled";
-            else
-            {
-                Output = e.Result.ToString();
-                _progressPercentage = 0;
-            }
-
-            _startEnabled = !_worker.IsBusy;
-            _cancelEnabled = _worker.IsBusy;
-
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void NotifyPropertyChanged(string propertyName)

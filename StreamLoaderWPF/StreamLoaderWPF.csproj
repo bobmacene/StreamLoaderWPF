@@ -112,6 +112,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="System\Deployment\Current.cs" />
     <Compile Include="ViewModel\CommandHandler.cs" />
     <Compile Include="Model\Downloader.cs" />
     <Compile Include="ViewModel\ViewModel.cs" />

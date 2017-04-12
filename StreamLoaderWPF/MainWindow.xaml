@@ -30,13 +30,11 @@
                 <Button Command="{Binding CurrentUrlCommand}" Content="Get Current Url" Grid.Row="1" Grid.Column="0" Background="Yellow"/>
                 <TextBox Text="{Binding CurrentUrl}" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Background="Azure"/>
 
-                <Button Command="{Binding SaveStreamCommand}" Content="Download Stream" Grid.Row="2" Grid.Column="0" Background="ForestGreen" Foreground="YellowGreen" Grid.ColumnSpan="2" Margin="11,0,189,0" />
-                
-                <ProgressBar Visibility="{Binding ProgressBarVisibility}" Minimum="0" Maximum="100" x:Name="bar" IsIndeterminate="True" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Background="DarkKhaki" ValueChanged="bar_ValueChanged"/>
+                <Button Command="{Binding SaveStreamCommand}" Content="Download Stream" Grid.Row="2" Grid.Column="0" Background="ForestGreen" Foreground="YellowGreen" />
+
+                <ProgressBar Visibility="{Binding ProgressBarVisibility}" Minimum="0" Maximum="100" x:Name="bar" IsIndeterminate="True" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="4" Background="DarkKhaki" ValueChanged="bar_ValueChanged" Margin="3,0,0,0"/>
                 <Button Command="{Binding TitleCommand}" Content="Get Title" Grid.Row="1" Grid.Column="3" Background="Yellow"/>
                 <TextBox Text="{Binding Title}" Grid.Row="1" Grid.Column="4" Background="Azure"/>
-                
-                <TextBox x:Name="urlTextBox" Grid.Row="2" Grid.Column="4" Background="NavajoWhite" />
                 <WebBrowser x:Name="browserXaml" Grid.Row="3" Source="https://www.mixcloud.com" VerticalAlignment="Stretch" Grid.ColumnSpan="5"  />
 
             </Grid>
